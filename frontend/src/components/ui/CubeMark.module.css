@@ -1,0 +1,17 @@
+.mark {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.12em;
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+.mark > span {
+  background: currentColor;
+  border-radius: 0.04em;
+}
+
+.mark > .accent {
+  background: var(--accent);
+}

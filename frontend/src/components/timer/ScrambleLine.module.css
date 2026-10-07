@@ -1,0 +1,32 @@
+.scramble {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.62em;
+  row-gap: 0.2em;
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 0.55rem + 1.15vw, 2.25rem);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--ink);
+  transition: color 0.3s var(--ease-out);
+}
+
+.scramble[data-dim] {
+  color: var(--ink-3);
+}
+
+.move {
+  min-width: 1.7ch;
+  animation: drop 0.36s var(--ease-out) both;
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-0.4em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
