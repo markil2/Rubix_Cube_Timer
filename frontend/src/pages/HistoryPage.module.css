@@ -141,6 +141,29 @@
   color: var(--ink-3);
 }
 
+.notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6em 1.4em;
+  padding: 18px var(--gutter);
+  border-bottom: 1px solid var(--line);
+  color: var(--stop);
+}
+
+.retry {
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--ink);
+  border-bottom: 1.5px solid currentColor;
+  padding-bottom: 2px;
+}
+
+.retry:hover {
+  color: var(--accent);
+}
+
 .empty {
   padding: 15vh var(--gutter);
 }

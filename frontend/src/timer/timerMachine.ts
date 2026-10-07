@@ -64,9 +64,12 @@ function startRunning(state: TimerState, at: number): TimerState {
   return { ...state, phase: 'running', startedAt: at, holdStartedAt: null, cubeInHand: false, penalty, resultMs: null }
 }
 
-/** A hardware-reported time is authoritative; otherwise use the browser clock. */
+/**
+ * A hardware-reported time is authoritative (millisecond precision). Browser
+ * clock times are truncated to hundredths, matching what the display shows.
+ */
 function stop(state: TimerState, at: number, timeMs?: number): TimerState {
-  const resultMs = timeMs ?? (state.startedAt === null ? 0 : at - state.startedAt)
+  const resultMs = timeMs ?? Math.floor((state.startedAt === null ? 0 : at - state.startedAt) / 10) * 10
   return {
     ...state,
     phase: 'stopped',

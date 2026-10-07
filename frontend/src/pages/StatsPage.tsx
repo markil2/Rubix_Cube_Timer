@@ -10,7 +10,7 @@ const count = (v: number | null) => (v === null ? '—' : Math.round(v).toString
 const dateFormat = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' })
 
 export function StatsPage() {
-  const { solves, stats, precision } = useSolves()
+  const { solves, stats, precision, loadError } = useSolves()
   const fmt = (v: number | null) => formatStat(v, precision)
   const best = stats.best
   const recent = solves.slice(-60)
@@ -29,6 +29,7 @@ export function StatsPage() {
             </span>
           )}
         </div>
+        {loadError && <p className={`label ${styles.notice}`}>{loadError}</p>}
         <dl>
           <Stat
             label="Personal best"
@@ -41,7 +42,7 @@ export function StatsPage() {
       </section>
 
       <Marquee
-        items={solves.slice(-12).map((s) => formatSolve(s))}
+        items={solves.length > 0 ? solves.slice(-12).map((s) => formatSolve(s)) : ['No solves yet', 'Start timing']}
         duration={60}
         reverse
         className={styles.band}

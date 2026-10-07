@@ -8,7 +8,7 @@ import styles from './HistoryPage.module.css'
 const dateFormat = new Intl.DateTimeFormat('en', { month: 'short', day: '2-digit' })
 
 export function HistoryPage() {
-  const { solves, stats, loading } = useSolves()
+  const { solves, stats, loading, loadError, reload } = useSolves()
   const reduced = useReducedMotion()
   const rows = [...solves].reverse()
 
@@ -29,7 +29,16 @@ export function HistoryPage() {
         <span className="label">Date</span>
       </div>
 
-      {loading ? (
+      {loadError && (
+        <p className={`label ${styles.notice}`} role="status">
+          {loadError}
+          <button type="button" className={styles.retry} onClick={reload}>
+            Retry
+          </button>
+        </p>
+      )}
+
+      {loading && rows.length === 0 ? (
         <p className={`label ${styles.empty}`}>Loading solves…</p>
       ) : rows.length === 0 ? (
         <p className={`label ${styles.empty}`}>No solves yet. Your first one lands here.</p>
