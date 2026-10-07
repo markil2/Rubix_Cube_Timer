@@ -1,0 +1,72 @@
+.wrap {
+  --size: min(29vw, 52dvh);
+  color: var(--ink);
+  transition: color 0.12s linear;
+}
+
+.wrap[data-long] {
+  --size: min(20vw, 44dvh);
+}
+
+.digits {
+  display: flex;
+  align-items: baseline;
+  font-size: var(--size);
+  line-height: 0.76;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  animation: rise 0.42s var(--ease-out) both;
+}
+
+.fraction {
+  transition: opacity 0.2s linear;
+}
+
+/* State colors */
+.wrap[data-phase='idle'] {
+  color: var(--ink);
+}
+
+.wrap[data-phase='inspecting'] {
+  color: var(--accent);
+}
+
+.wrap[data-phase='holding'] {
+  color: var(--stop);
+}
+
+.wrap[data-phase='ready'] {
+  color: var(--go);
+}
+
+.wrap[data-phase='running'] .fraction {
+  opacity: 0.42;
+}
+
+.wrap[data-record] {
+  color: var(--accent);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.12em);
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 -10% 0);
+  }
+}
+
+/* Single-column layouts have the full width to spend on digits. */
+@media (max-width: 900px) {
+  .wrap {
+    --size: min(34vw, 40dvh);
+  }
+
+  .wrap[data-long] {
+    --size: min(25vw, 34dvh);
+  }
+}

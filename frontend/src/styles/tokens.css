@@ -1,0 +1,31 @@
+:root {
+  /* Ground + ink */
+  --bg: #0b0b0b;
+  --bg-raised: #141414;
+  --ink: #f2f0eb;
+  --ink-2: rgba(242, 240, 235, 0.62);
+  --ink-3: rgba(242, 240, 235, 0.36);
+  --line: rgba(242, 240, 235, 0.14);
+
+  /* Brand accent — signal orange, one face of the cube */
+  --accent: #ff5a1f;
+
+  /* Timer state colors (state only, never decoration) */
+  --go: #19c26b;
+  --stop: #ec2e2e;
+
+  /* Type */
+  --font-display: 'Archivo Variable', 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  /* Layout */
+  --gutter: clamp(16px, 2.6vw, 56px);
+  --header-h: clamp(56px, 6vh, 84px);
+
+  /* Small-caps label size */
+  --label: clamp(0.6875rem, 0.55rem + 0.32vw, 0.9375rem);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
