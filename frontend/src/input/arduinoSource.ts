@@ -3,7 +3,7 @@ import type { TimerInput } from './types'
 /**
  * Parse one line from the Arduino.
  *   START        → start (cube lifted)
- *   STOP:12.347  → stop, time in seconds (cube put back)
+ *   STOP:12.347  → stop, time in seconds (cube put back); "STOP: 12.347 s" also works
  * The JSON form ({"event":"start"} / {"event":"stop","time":12.47}) is also
  * accepted. Anything else returns null and is ignored.
  */
@@ -13,7 +13,8 @@ export function parseArduinoLine(raw: string): TimerInput | null {
 
   if (/^START$/i.test(line)) return { type: 'start' }
 
-  const stop = /^STOP:\s*(\d+(?:\.\d+)?)$/i.exec(line)
+  // "STOP:12.347", "STOP: 12.347 s" — optional space and seconds unit.
+  const stop = /^STOP:\s*(\d+(?:\.\d+)?)\s*(?:s|sec|secs|seconds)?$/i.exec(line)
   if (stop) return stopFromSeconds(Number(stop[1]))
 
   if (line.startsWith('{')) {
