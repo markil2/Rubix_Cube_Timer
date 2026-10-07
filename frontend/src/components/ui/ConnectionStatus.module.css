@@ -1,0 +1,130 @@
+.wrap {
+  position: relative;
+}
+
+.status {
+  display: inline-flex;
+  padding: 6px 0;
+  cursor: pointer;
+  align-items: baseline;
+  gap: 0.75em;
+  font-size: var(--label);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.dot {
+  position: relative;
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-2);
+  flex: none;
+  transform: translateY(0.05em);
+}
+
+.status[data-status='connected'] .dot {
+  background: var(--go);
+  border-color: var(--go);
+}
+
+.status[data-status='connected'] .dot::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 50%;
+  background: var(--go);
+  animation: pulse 2.4s var(--ease-out) infinite;
+}
+
+.status[data-status='connecting'] .dot {
+  border-color: var(--accent);
+  border-right-color: transparent;
+  animation: spin 0.9s linear infinite;
+}
+
+.text {
+  display: inline-flex;
+  flex-wrap: wrap;
+  column-gap: 0.9em;
+}
+
+.action {
+  position: relative;
+  color: var(--ink-2);
+  transition: color 0.25s var(--ease-out);
+}
+
+.action::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s var(--ease-out);
+}
+
+.status[data-status='disconnected'] .action {
+  color: var(--accent);
+}
+
+.status:hover .action {
+  color: var(--ink);
+}
+
+.status:hover .action::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.status:disabled {
+  cursor: progress;
+}
+
+/* Sits under the indicator without pushing the layout around. */
+.error {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: max-content;
+  max-width: min(44ch, 80vw);
+  margin-top: 4px;
+  font-size: var(--label);
+  letter-spacing: 0.04em;
+  line-height: 1.45;
+  text-align: right;
+  color: var(--stop);
+}
+
+.error:empty {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .error {
+    max-width: 70vw;
+  }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: translateY(0.05em) rotate(360deg);
+  }
+}

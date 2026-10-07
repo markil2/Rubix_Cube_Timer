@@ -1,0 +1,121 @@
+.hero {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) auto;
+  align-items: end;
+  gap: var(--gutter);
+  padding: calc(var(--header-h) + clamp(32px, 10vh, 160px)) var(--gutter) clamp(32px, 6vh, 96px);
+}
+
+.heroLead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  padding-bottom: 1.2em;
+}
+
+.notice {
+  grid-column: 1 / -1;
+  color: var(--stop);
+}
+
+.heroNote {
+  color: var(--ink-3);
+}
+
+.hero dl :global(dt) {
+  display: none;
+}
+
+.band {
+  font-size: clamp(3.5rem, 9vw, 12rem);
+  padding: clamp(16px, 3vh, 40px) 0;
+  border-block: 1px solid var(--line);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.cell {
+  padding: clamp(28px, 6vh, 88px) var(--gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+.cell:nth-child(odd) {
+  border-right: 1px solid var(--line);
+}
+
+.trend {
+  padding: clamp(48px, 10vh, 140px) var(--gutter) clamp(64px, 14vh, 200px);
+}
+
+.trendHead,
+.trendFoot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.trendRange {
+  color: var(--ink);
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(2px, 0.35vw, 6px);
+  height: clamp(140px, 24vh, 320px);
+  margin: 24px 0 16px;
+  border-bottom: 1px solid var(--ink-2);
+}
+
+.bar {
+  flex: 1;
+  height: calc(var(--h) * 100%);
+  background: var(--ink-3);
+  transform-origin: bottom;
+  animation: grow 0.9s var(--ease-out) both;
+  animation-delay: 0.7s;
+  transition: background-color 0.2s linear;
+}
+
+.bar:hover {
+  background: var(--ink);
+}
+
+.bar[data-best] {
+  background: var(--accent);
+}
+
+.bar[data-dnf] {
+  background: repeating-linear-gradient(-45deg, var(--ink-3) 0 2px, transparent 2px 6px);
+}
+
+.trendFoot :nth-child(2) {
+  color: var(--ink-3);
+}
+
+@keyframes grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cell:nth-child(odd) {
+    border-right: 0;
+  }
+
+  .trendFoot :nth-child(2) {
+    display: none;
+  }
+}

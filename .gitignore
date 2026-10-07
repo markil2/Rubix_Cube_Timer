@@ -20,3 +20,8 @@ build/
 
 # Logs
 *.log
+
+# Backend runtime data
+backend/data/*.sqlite
+backend/data/*.sqlite-shm
+backend/data/*.sqlite-wal
