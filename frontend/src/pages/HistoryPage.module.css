@@ -16,7 +16,7 @@
 .columns,
 .row {
   display: grid;
-  grid-template-columns: minmax(5ch, 0.9fr) minmax(0, 1.6fr) minmax(0, 2fr) 7ch;
+  grid-template-columns: minmax(5ch, 0.9fr) minmax(0, 1.6fr) minmax(0, 2fr) 11ch;
   align-items: baseline;
   gap: clamp(16px, 2.4vw, 56px);
   padding: 0 var(--gutter);
@@ -124,6 +124,21 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-2);
+}
+
+.unsynced,
+.saving {
+  display: block;
+  margin-top: 0.5em;
+  font-size: 0.85em;
+}
+
+.unsynced {
+  color: var(--stop);
+}
+
+.saving {
+  color: var(--ink-3);
 }
 
 .empty {

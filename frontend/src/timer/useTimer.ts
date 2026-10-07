@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { createKeyboardSource } from '../input/keyboardSource'
-import type { TimerInput } from '../input/types'
+import { useDevice } from '../input/DeviceProvider'
+import type { InputSourceKind, TimerInput } from '../input/types'
 import type { Penalty } from '../data/types'
 import { initialTimerState, timerReducer, type TimerState } from './timerMachine'
 
@@ -9,11 +10,13 @@ const LIVE_PHASES = new Set(['inspecting', 'holding', 'running'])
 export interface CompletedSolve {
   timeMs: number
   penalty: Penalty
+  source: InputSourceKind
 }
 
 /**
- * Owns the timer state machine, feeds it from the active input source,
- * and runs a rAF clock while something is counting.
+ * Owns the timer state machine, feeds it from every input (keyboard/touch and
+ * the Arduino), and runs a rAF clock while something is counting. There is one
+ * timer; inputs only send it events.
  */
 export function useTimer(onComplete: (solve: CompletedSolve) => void) {
   const [state, dispatch] = useReducer(timerReducer, initialTimerState)
@@ -23,11 +26,15 @@ export function useTimer(onComplete: (solve: CompletedSolve) => void) {
 
   const send = useMemo(() => (input: TimerInput) => dispatch({ ...input, at: performance.now() }), [])
 
-  // Input source. Swapping this for createArduinoSource(...) is the only change Web Serial needs.
+  // Manual input: always available, with or without the Arduino.
   useEffect(() => {
     const source = createKeyboardSource(() => stateRef.current.phase === 'running')
     return source.connect(send)
   }, [send])
+
+  // Arduino input: START / STOP:x events from the serial connection.
+  const { subscribe } = useDevice()
+  useEffect(() => subscribe(send), [subscribe, send])
 
   // Clock: only runs while there is something to count.
   useEffect(() => {
@@ -50,9 +57,9 @@ export function useTimer(onComplete: (solve: CompletedSolve) => void) {
   useEffect(() => {
     if (state.completed > reported.current && state.resultMs !== null) {
       reported.current = state.completed
-      onCompleteRef.current({ timeMs: state.resultMs, penalty: state.penalty })
+      onCompleteRef.current({ timeMs: state.resultMs, penalty: state.penalty, source: state.resultSource })
     }
-  }, [state.completed, state.resultMs, state.penalty])
+  }, [state.completed, state.resultMs, state.penalty, state.resultSource])
 
   return { state, now, send }
 }

@@ -2,33 +2,62 @@ import { mockProfile, mockSolves } from './mock'
 import type { NewSolve, Profile, Solve } from './types'
 
 /**
- * Data access for the UI. Everything is async so the mock implementation
- * can be swapped for real fetch() calls to the backend without touching
- * components — e.g. getSolves() → GET /api/solves.
+ * Data access for the UI. Components only talk to this module.
+ *
+ * - saveSolve() is real: POST /api/solves. In dev, Vite proxies /api to the
+ *   backend (see vite.config.ts). Set VITE_API_URL to call a backend on
+ *   another origin in production.
+ * - getSolves() and getProfile() still return mock data until the backend
+ *   exposes GET endpoints for them.
  */
 
-let solves: Solve[] = [...mockSolves]
+const API_BASE = import.meta.env.VITE_API_URL ?? ''
 
-const latency = () => new Promise((resolve) => setTimeout(resolve, 0))
-
-export async function getSolves(): Promise<Solve[]> {
-  await latency()
-  return [...solves]
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status?: number,
+  ) {
+    super(message)
+  }
 }
 
-export async function saveSolve(input: NewSolve): Promise<Solve> {
-  await latency()
-  const solve: Solve = {
-    ...input,
-    id: `local-${Date.now()}`,
-    n: (solves[solves.length - 1]?.n ?? 0) + 1,
-    date: new Date().toISOString(),
+/** Request body for POST /api/solves. */
+export interface SolvePayload {
+  /** Seconds, as measured (Arduino precision preserved, e.g. 12.347). */
+  time: number
+  scramble: string
+  penalty: '+2' | 'DNF' | null
+}
+
+export function toSolvePayload(solve: NewSolve): SolvePayload {
+  return {
+    time: solve.timeMs / 1000,
+    scramble: solve.scramble,
+    penalty: solve.penalty === 'none' ? null : solve.penalty,
   }
-  solves = [...solves, solve]
-  return solve
+}
+
+/** Persist a finished solve. Resolves with whatever the backend returns; throws ApiError on failure. */
+export async function saveSolve(solve: NewSolve): Promise<unknown> {
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}/api/solves`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(toSolvePayload(solve)),
+    })
+  } catch {
+    throw new ApiError('Backend unreachable')
+  }
+  if (!res.ok) throw new ApiError(`Save failed (${res.status})`, res.status)
+  return res.headers.get('content-type')?.includes('application/json') ? res.json() : null
+}
+
+export async function getSolves(): Promise<Solve[]> {
+  return [...mockSolves]
 }
 
 export async function getProfile(): Promise<Profile> {
-  await latency()
   return mockProfile
 }

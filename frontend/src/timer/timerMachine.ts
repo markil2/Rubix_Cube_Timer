@@ -1,11 +1,17 @@
 import type { Penalty } from '../data/types'
-import type { TimerInput } from '../input/types'
+import type { InputSourceKind, TimerInput } from '../input/types'
 
 /**
  * idle ──release──▶ inspecting ──press──▶ holding ──(held ≥ HOLD_MS)──▶ ready ──release──▶ running ──press──▶ stopped
  *                       ▲                   │ release (too early)
  *                       └───────────────────┘
  * stopped ──release──▶ idle (key-up from the stopping press is swallowed first)
+ *
+ * Arduino cube sensor (START = cube lifted, STOP:x = cube put back):
+ *   idle/stopped ──START──▶ running ──STOP:x──▶ stopped (x is the official time)
+ *   inspecting ──START──▶ inspecting (cube in hand) ──STOP──▶ ready ──START──▶ running
+ *   i.e. the first lift/put-down during inspection is the inspection itself;
+ *   the next lift starts the solve.
  */
 export type Phase = 'idle' | 'inspecting' | 'holding' | 'ready' | 'running' | 'stopped'
 
@@ -26,6 +32,10 @@ export interface TimerState {
   completed: number
   /** Swallow the key-up that follows the press which stopped the timer. */
   awaitingRelease: boolean
+  /** The cube was lifted off the sensor during inspection and not yet put back. */
+  cubeInHand: boolean
+  /** Which input produced the final time of the last solve. */
+  resultSource: InputSourceKind
 }
 
 export const initialTimerState: TimerState = {
@@ -37,6 +47,8 @@ export const initialTimerState: TimerState = {
   resultMs: null,
   completed: 0,
   awaitingRelease: false,
+  cubeInHand: false,
+  resultSource: 'keyboard',
 }
 
 export type TimerAction = (TimerInput | { type: 'tick' }) & { at: number }
@@ -49,15 +61,17 @@ export function inspectionPenalty(elapsedMs: number): Penalty {
 
 function startRunning(state: TimerState, at: number): TimerState {
   const penalty = state.inspectionStartedAt === null ? 'none' : inspectionPenalty(at - state.inspectionStartedAt)
-  return { ...state, phase: 'running', startedAt: at, holdStartedAt: null, penalty, resultMs: null }
+  return { ...state, phase: 'running', startedAt: at, holdStartedAt: null, cubeInHand: false, penalty, resultMs: null }
 }
 
+/** A hardware-reported time is authoritative; otherwise use the browser clock. */
 function stop(state: TimerState, at: number, timeMs?: number): TimerState {
   const resultMs = timeMs ?? (state.startedAt === null ? 0 : at - state.startedAt)
   return {
     ...state,
     phase: 'stopped',
     resultMs,
+    resultSource: timeMs === undefined ? 'keyboard' : 'arduino',
     inspectionStartedAt: null,
     completed: state.completed + 1,
   }
@@ -70,11 +84,26 @@ export function timerReducer(state: TimerState, action: TimerAction): TimerState
     case 'cancel':
       return { ...initialTimerState, completed: state.completed }
 
-    // Hardware events skip the human hold/ready handshake.
+    // Arduino sensor events. Duplicates (START while running, STOP with no
+    // active solve) are ignored.
     case 'start':
-      return state.phase === 'running' ? state : startRunning(state, at)
+      switch (state.phase) {
+        case 'running':
+          return state
+        case 'inspecting':
+        case 'holding':
+          // First lift during inspection: the cube is being inspected.
+          return state.cubeInHand ? state : { ...state, phase: 'inspecting', holdStartedAt: null, cubeInHand: true }
+        default:
+          return startRunning(state, at)
+      }
     case 'stop':
-      return state.phase === 'running' ? stop(state, at, action.timeMs) : state
+      if (state.phase === 'running') return stop(state, at, action.timeMs)
+      // Cube put back after inspecting: armed, the next lift starts the solve.
+      if (state.cubeInHand && (state.phase === 'inspecting' || state.phase === 'holding')) {
+        return { ...state, phase: 'ready', holdStartedAt: null, cubeInHand: false }
+      }
+      return state
 
     case 'tick':
       if (state.phase === 'holding' && state.holdStartedAt !== null && at - state.holdStartedAt >= HOLD_MS) {
@@ -105,6 +134,7 @@ export function timerReducer(state: TimerState, action: TimerAction): TimerState
             startedAt: null,
             penalty: 'none',
             resultMs: null,
+            cubeInHand: false,
           }
         case 'holding':
           return { ...state, phase: 'inspecting', holdStartedAt: null }

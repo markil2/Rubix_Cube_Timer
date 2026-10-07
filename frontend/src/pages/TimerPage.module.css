@@ -1,10 +1,10 @@
+/* Fills the screen; on very short viewports it grows and scrolls instead of overlapping. */
 .page {
-  height: 100dvh;
-  overflow: hidden;
+  min-height: 100dvh;
 }
 
 .stage {
-  height: 100%;
+  min-height: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr auto;
   padding: calc(var(--header-h) + clamp(8px, 2vh, 32px)) var(--gutter) 0;

@@ -53,9 +53,11 @@ export function HistoryPage() {
                   {isBest && <span className={styles.badge}>PB</span>}
                 </span>
                 <span className={styles.scramble}>{solve.scramble}</span>
-                <time className={styles.date} dateTime={solve.date}>
-                  {dateFormat.format(new Date(solve.date))}
-                </time>
+                <span className={styles.date}>
+                  <time dateTime={solve.date}>{dateFormat.format(new Date(solve.date))}</time>
+                  {solve.sync === 'failed' && <span className={styles.unsynced}>Not synced</span>}
+                  {solve.sync === 'saving' && <span className={styles.saving}>Saving…</span>}
+                </span>
               </motion.li>
             )
           })}

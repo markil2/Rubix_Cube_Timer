@@ -16,10 +16,11 @@ export function TimerDisplay({ phase, value, revealKey, record = false }: Props)
   const dot = value.lastIndexOf('.')
   const whole = dot === -1 ? value : value.slice(0, dot)
   const fraction = dot === -1 ? '' : value.slice(dot)
-  const long = value.length >= 7
+  // 12.47 → full size; 12.347 / 1:02.31 → step down so the digits never overflow.
+  const length = value.length >= 7 ? 'long' : value.length === 6 ? 'mid' : undefined
 
   return (
-    <div className={styles.wrap} data-phase={phase} data-record={record || undefined} data-long={long || undefined}>
+    <div className={styles.wrap} data-phase={phase} data-record={record || undefined} data-length={length}>
       <div key={revealKey} className={`display ${styles.digits}`} aria-live="off">
         <span>{whole}</span>
         {fraction && <span className={styles.fraction}>{fraction}</span>}

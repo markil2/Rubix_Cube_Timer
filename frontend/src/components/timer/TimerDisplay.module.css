@@ -4,7 +4,11 @@
   transition: color 0.12s linear;
 }
 
-.wrap[data-long] {
+.wrap[data-length='mid'] {
+  --size: min(24vw, 48dvh);
+}
+
+.wrap[data-length='long'] {
   --size: min(20vw, 44dvh);
 }
 
@@ -66,7 +70,11 @@
     --size: min(34vw, 40dvh);
   }
 
-  .wrap[data-long] {
+  .wrap[data-length='mid'] {
+    --size: min(29vw, 38dvh);
+  }
+
+  .wrap[data-length='long'] {
     --size: min(25vw, 34dvh);
   }
 }

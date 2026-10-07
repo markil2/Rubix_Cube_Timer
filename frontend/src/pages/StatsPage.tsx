@@ -3,14 +3,15 @@ import { Page } from '../components/layout/Page'
 import { Marquee } from '../components/ui/Marquee'
 import { Stat } from '../components/ui/Stat'
 import { useSolves } from '../data/SolvesProvider'
-import { effectiveMs, formatSolve, padSolveNumber } from '../lib/format'
+import { effectiveMs, formatSolve, formatStat, padSolveNumber, precisionOf } from '../lib/format'
 import styles from './StatsPage.module.css'
 
 const count = (v: number | null) => (v === null ? '—' : Math.round(v).toString())
 const dateFormat = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' })
 
 export function StatsPage() {
-  const { solves, stats } = useSolves()
+  const { solves, stats, precision } = useSolves()
+  const fmt = (v: number | null) => formatStat(v, precision)
   const best = stats.best
   const recent = solves.slice(-60)
   const finite = recent.map(effectiveMs).filter(Number.isFinite)
@@ -29,7 +30,13 @@ export function StatsPage() {
           )}
         </div>
         <dl>
-          <Stat label="Personal best" value={best ? effectiveMs(best) : null} size="xl" accent />
+          <Stat
+            label="Personal best"
+            value={best ? effectiveMs(best) : null}
+            format={(v) => formatStat(v, best ? precisionOf(best) : 2)}
+            size="xl"
+            accent
+          />
         </dl>
       </section>
 
@@ -42,22 +49,22 @@ export function StatsPage() {
 
       <dl className={styles.grid}>
         <div className={styles.cell}>
-          <Stat label="Average" note="all solves" value={stats.mean} size="lg" />
+          <Stat label="Average" note="all solves" value={stats.mean} format={fmt} size="lg" />
         </div>
         <div className={styles.cell}>
           <Stat label="Solves" value={stats.count} format={count} size="lg" />
         </div>
         <div className={styles.cell}>
-          <Stat label="Best of 5" note="ao5" value={stats.bestAo5} size="lg" />
+          <Stat label="Best of 5" note="ao5" value={stats.bestAo5} format={fmt} size="lg" />
         </div>
         <div className={styles.cell}>
-          <Stat label="Best of 12" note="ao12" value={stats.bestAo12} size="lg" />
+          <Stat label="Best of 12" note="ao12" value={stats.bestAo12} format={fmt} size="lg" />
         </div>
         <div className={styles.cell}>
-          <Stat label="Current ao5" value={stats.ao5} size="md" />
+          <Stat label="Current ao5" value={stats.ao5} format={fmt} size="md" />
         </div>
         <div className={styles.cell}>
-          <Stat label="Current ao12" value={stats.ao12} size="md" />
+          <Stat label="Current ao12" value={stats.ao12} format={fmt} size="md" />
         </div>
       </dl>
 
@@ -66,7 +73,7 @@ export function StatsPage() {
           <div className={styles.trendHead}>
             <span className="label">Last {recent.length} solves</span>
             <span className={`label ${styles.trendRange}`}>
-              {formatSolve({ timeMs: min, penalty: 'none' })} — {formatSolve({ timeMs: max, penalty: 'none' })}
+              {fmt(min)} — {fmt(max)}
             </span>
           </div>
           <ol className={styles.bars}>

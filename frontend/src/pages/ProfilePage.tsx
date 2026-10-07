@@ -3,13 +3,13 @@ import { Page } from '../components/layout/Page'
 import { getProfile } from '../data/api'
 import { useSolves } from '../data/SolvesProvider'
 import type { Profile } from '../data/types'
-import { effectiveMs, formatStat, padSolveNumber } from '../lib/format'
+import { effectiveMs, formatStat, padSolveNumber, precisionOf, type Precision } from '../lib/format'
 import styles from './ProfilePage.module.css'
 
 const dateFormat = new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' })
 
 export function ProfilePage() {
-  const { stats } = useSolves()
+  const { stats, precision } = useSolves()
   const [profile, setProfile] = useState<Profile | null>(null)
 
   useEffect(() => {
@@ -19,9 +19,14 @@ export function ProfilePage() {
   const [first, ...rest] = (profile?.name ?? '—').split(' ')
 
   const records = [
-    { event: 'Single', value: stats.best ? effectiveMs(stats.best) : null, detail: stats.best ? `#${padSolveNumber(stats.best.n)}` : '' },
-    { event: 'Average of 5', value: stats.bestAo5, detail: 'rolling' },
-    { event: 'Average of 12', value: stats.bestAo12, detail: 'rolling' },
+    {
+      event: 'Single',
+      value: stats.best ? effectiveMs(stats.best) : null,
+      detail: stats.best ? `#${padSolveNumber(stats.best.n)}` : '',
+      precision: (stats.best ? precisionOf(stats.best) : 2) as Precision,
+    },
+    { event: 'Average of 5', value: stats.bestAo5, detail: 'rolling', precision },
+    { event: 'Average of 12', value: stats.bestAo12, detail: 'rolling', precision },
   ]
 
   return (
@@ -65,7 +70,7 @@ export function ProfilePage() {
               <span className={styles.rank}>{String(i + 1).padStart(2, '0')}</span>
               <span className={styles.event}>{r.event}</span>
               <span className={`display ${styles.recordTime}`} data-first={i === 0 || undefined}>
-                {formatStat(r.value)}
+                {formatStat(r.value, r.precision)}
               </span>
               <span className={`label ${styles.detail}`}>{r.detail}</span>
             </li>
