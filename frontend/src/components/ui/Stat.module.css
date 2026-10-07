@@ -1,0 +1,50 @@
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+}
+
+.label {
+  display: flex;
+  gap: 0.8em;
+  font-size: var(--label);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.note {
+  color: var(--ink-3);
+}
+
+.value {
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.stat[data-size='sm'] .value {
+  font-size: clamp(1.75rem, 1rem + 2vw, 3.5rem);
+}
+
+.stat[data-size='md'] .value {
+  font-size: clamp(2.5rem, 1rem + 3.4vw, 6rem);
+}
+
+.stat[data-size='lg'] .value {
+  font-size: clamp(4rem, 1rem + 7vw, 12rem);
+}
+
+.stat[data-size='xl'] .value {
+  font-size: clamp(6rem, 2rem + 16vw, 26rem);
+}
+
+@media (max-width: 640px) {
+  .note {
+    display: none;
+  }
+}
